@@ -1,4 +1,4 @@
-{% extends 'base.html %}
+{% extends 'base.html' %}
 
 {% block title %} Confirm Delete Todo  {% endblock %}
 
@@ -16,17 +16,21 @@
             </div>
 
             <div class="flex justify-center space-x-4">
-                <a href="detail.html" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                <a href="{{ todo.get_detail_url }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                     Cancel
                 </a>
-                <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                    Delete
-                </button>
+                <form action="{{ todo.get_delete_url }}" method="post">
+                    {% csrf_token %}
+                     <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                        Delete
+                    </button>
+                </form>
+
             </div>
         </div>
 
         <div class="text-center">
-            <a href="todo-list.html" class="text-blue-500 hover:text-blue-700">
+            <a href="{% url 'todo:list' %}" class="text-blue-500 hover:text-blue-700">
                 <i class="bi bi-arrow-left mr-2"></i>Back to Todo List
             </a>
         </div>

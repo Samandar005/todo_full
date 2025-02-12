@@ -1,41 +1,79 @@
-{% extends 'base.html %}
+{% extends 'base.html' %}
 
-{% block title %} Add New Todo  {% endblock %}
+{% block title %}{% if todo %} Edit New Todo {% else %} Add New Todo {% endif %}{% endblock %}
 
 {% block content %}
 <body class="bg-gray-100">
     <div class="container mx-auto p-4 max-w-md">
-        <h1 class="text-3xl font-bold mb-6 text-center">Add New Todo</h1>
-        <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <h1 class="text-3xl font-bold mb-6 text-center">{% if todo %}Edit New Todo {% else %} Add New Todo{% endif %}</h1>
+        {% if todo %}
+            <a href="{{ todo.get_detail_url }}" class="inline-block mb-4 text-blue-500 hover:text-blue-700">
+                <i class="bi bi-arrow-left mr-2"></i>Back to Todo List
+            </a>
+        {% else %}
+            <a href="{% url 'todo:list' %}" class="inline-block mb-4 text-blue-500 hover:text-blue-700">
+                <i class="bi bi-arrow-left mr-2"></i>Back to Todo List
+            </a>
+        {% endif %}
+        <form method="post" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            {% csrf_token %}
             <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="title">
+                <label for="{{ form.title.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
                     Title
                 </label>
-                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="title" type="text" placeholder="Enter todo title">
+                {{ form.title }}
+                {% if form.title.errors %}
+                    <p class="text-red-500 text-xs italic">
+                        {% for error in form.title.errors %}
+                            {{ error }}{% if not forloop.last %}<br>{% endif %}
+                        {% endfor %}
+                    </p>
+                {% endif %}
             </div>
+
+            <!-- Description Field -->
             <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="description">
+                <label for="{{ form.description.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
                     Description
                 </label>
-                <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="description" placeholder="Enter todo description"></textarea>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <p class="text-red-500 text-xs italic">
+                        {% for error in form.description.errors %}
+                            {{ error }}{% if not forloop.last %}<br>{% endif %}
+                        {% endfor %}
+                    </p>
+                {% endif %}
             </div>
+
+            <!-- Priority Field -->
             <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="priority">
+                <label for="{{ form.priority.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
                     Priority
                 </label>
-                <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="priority">
-                    <option>Low</option>
-                    <option>Medium</option>
-                    <option>High</option>
-                </select>
+                {{ form.priority }}
+                {% if form.priority.errors %}
+                    <p class="text-red-500 text-xs italic">
+                        {% for error in form.priority.errors %}
+                            {{ error }}{% if not forloop.last %}<br>{% endif %}
+                        {% endfor %}
+                    </p>
+                {% endif %}
             </div>
-            <div class="flex items-center justify-between">
-                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
-                    Add Todo
-                </button>
-            </div>
+            {% if todo %}
+                <div class="flex items-center justify-between">
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                        Edit Todo
+                    </button>
+                </div>
+            {% else %}
+                <div class="flex items-center justify-between">
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                        Add Todo
+                    </button>
+                </div>
+            {% endif %}
         </form>
     </div>
 </body>
 {% endblock %}
-
