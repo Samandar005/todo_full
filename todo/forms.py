@@ -5,7 +5,7 @@ from .models import Todo
 class TodoForm(forms.ModelForm):
     class Meta:
         model = Todo
-        fields = ('title', 'description', 'priority',)
+        fields = ('title', 'description', 'priority', 'completed')
         widgets = {
             'title': forms.TextInput(attrs={
                 'class': 'shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline',
@@ -18,6 +18,9 @@ class TodoForm(forms.ModelForm):
             }),
             'priority': forms.Select(attrs={
                 'class': 'shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
+            }),
+            'completed': forms.CheckboxInput(attrs={
+                'class': 'mr-2 leading-tight'
             }),
         }
 

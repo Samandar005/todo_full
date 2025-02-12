@@ -9,15 +9,10 @@ class Todo(models.Model):
         ('h', 'High'),
     ]
 
-    STATUS_CHOICES = [
-        ('ac', 'Active'),
-        ('com', 'Completed'),
-    ]
-
     title = models.CharField(max_length=100)
     description = models.TextField()
     priority = models.CharField(max_length=1, choices=PRIORITY_SELECT, blank=True)
-    status = models.CharField(max_length=3, choices=STATUS_CHOICES, default='ac')
+    completed = models.BooleanField(default=False)
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)
 
@@ -30,9 +25,13 @@ class Todo(models.Model):
     def get_delete_url(self):
         return reverse('todo:delete', args=[self.pk])
 
-    def toggle_status(self):
-        self.status = 'completed' if self.status == 'ac' else 'ac'
-        self.save()
+    @property
+    def status_display(self):
+        return "Active" if not self.completed else "Completed"
+
+    @property
+    def status_class(self):
+        return "bg-green-200 text-green-700" if self.completed else "bg-red-200 text-red-700"
 
     def __str__(self):
         return f"{self.title}"

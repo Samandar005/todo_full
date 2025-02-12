@@ -8,54 +8,57 @@
 <div class="container mx-auto p-4 max-w-3xl">
     <h1 class="text-3xl font-bold mb-6 text-center">Todo List</h1>
 
-    <!-- Search and Filter Form -->
-    <form class="mb-6 bg-white shadow-md rounded px-8 pt-6 pb-8">
-        <div class="mb-4">
-            <input type="text" placeholder="Search todos"
-                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+<form class="mb-6 bg-white shadow-md rounded px-8 pt-6 pb-8" method="GET">
+    <div class="mb-4">
+        <input type="text" name="search" placeholder="Search todos"
+               value="{{ request.GET.search }}"
+               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+    </div>
+    <div class="flex flex-wrap -mx-2 mb-4">
+        <div class="w-full md:w-1/3 px-2 mb-4 md:mb-0">
+            <select name="priority" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                <option value="">All Priorities</option>
+                <option value="h" {% if request.GET.priority == 'h' %}selected{% endif %}>High</option>
+                <option value="m" {% if request.GET.priority == 'm' %}selected{% endif %}>Medium</option>
+                <option value="l" {% if request.GET.priority == 'l' %}selected{% endif %}>Low</option>
+            </select>
         </div>
-        <div class="flex flex-wrap -mx-2 mb-4">
-            <div class="w-full md:w-1/3 px-2 mb-4 md:mb-0">
-                <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    <option value="">All Priorities</option>
-                    <option value="high">High</option>
-                    <option value="medium">Medium</option>
-                    <option value="low">Low</option>
-                </select>
-            </div>
-            <div class="w-full md:w-1/3 px-2 mb-4 md:mb-0">
-                <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    <option value="">All Statuses</option>
-                    <option value="active">Active</option>
-                    <option value="completed">Completed</option>
-                </select>
-            </div>
-            <div class="w-full md:w-1/3 px-2">
-                <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    <option value="">Order By</option>
-                    <option value="date">Due Date</option>
-                    <option value="priority">Priority</option>
-                    <option value="status">Status</option>
-                </select>
-            </div>
+        <div class="w-full md:w-1/3 px-2 mb-4 md:mb-0">
+            <select name="status" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                <option value="">All Statuses</option>
+                <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>Active</option>
+                <option value="completed" {% if request.GET.status == 'completed' %}selected{% endif %}>Completed</option>
+            </select>
         </div>
-        <div class="flex items-center justify-between">
-            <button type="submit"
-                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                Apply Filters
-            </button>
-            <button type="reset"
-                    class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                Reset Filters
-            </button>
+        <div class="w-full md:w-1/3 px-2">
+            <select name="order_by" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                <option value="">Order By</option>
+                <option value="date" {% if request.GET.order_by == 'date' %}selected{% endif %}>Due Date</option>
+                <option value="priority" {% if request.GET.order_by == 'priority' %}selected{% endif %}>Priority</option>
+                <option value="status" {% if request.GET.order_by == 'status' %}selected{% endif %}>Status</option>
+            </select>
         </div>
-    </form>
-
-    <!-- Todo List -->
+    </div>
+    <div class="flex items-center justify-between">
+        <button type="submit"
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            Apply Filters
+        </button>
+        <a href="{% url 'todo:list' %}"
+           class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            Reset Filters
+        </a>
+    </div>
+</form>
+{% if todos %}
     <ul class="mb-6">
         {% for todo in todos %}
         <li class="bg-white shadow-md rounded px-8 py-6 mb-4 flex items-center" data-id="{{ todo.id }}">
-            <input type="checkbox" class="todo-checkbox mr-4" {% if todo.completed %}checked{% endif %}>
+            <form method="post" action="{% url 'todo:status' todo.id %}" class="flex items-center">
+                {% csrf_token %}
+                <input type="checkbox" class="todo-checkbox mr-4" name="completed" {% if todo.completed %}checked{% endif %}
+                       onclick="this.form.submit();">
+            </form>
             <div class="flex-grow">
                 <a href="{{ todo.get_detail_url }}"
                    class="todo-title text-lg font-semibold {% if todo.completed %}line-through{% endif %} hover:text-blue-600">
@@ -63,9 +66,19 @@
                 </a>
                 <p class="text-gray-600">Due: {{ todo.created_at }}</p>
             </div>
-            <span class="inline-block bg-yellow-200 rounded-full px-3 py-1 text-sm font-semibold text-yellow-700 mr-2">
-                    {{ todo.get_priority_display }}
+            {% if todo.priority == 'h' %}
+                <span class="inline-block bg-red-200 rounded-full px-3 py-1 text-sm font-semibold text-red-700 mr-2">
+                    High
                 </span>
+            {% elif todo.priority == 'm' %}
+                <span class="inline-block bg-yellow-200 rounded-full px-3 py-1 text-sm font-semibold text-yellow-700 mr-2">
+                    Medium
+                </span>
+            {% elif todo.priority == 'l' %}
+                <span class="inline-block bg-green-200 rounded-full px-3 py-1 text-sm font-semibold text-green-700 mr-2">
+                    Low
+                </span>
+            {% endif %}
             <button class="text-blue-500 hover:text-blue-700 mr-2">
                 <a href="{{ todo.get_update_url }}"><i class="bi bi-pencil"></i></a>
             </button>
@@ -75,8 +88,10 @@
         </li>
         {% endfor %}
     </ul>
-
-    <!-- Add New Todo Button -->
+{% else %}
+<h3 class="text-center text-xl font-bold text-gray-600 mt-8">
+    No added Posts
+</h3>{% endif %}
     <a href="{% url 'todo:create' %}" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
         <i class="bi bi-plus-circle mr-2"></i>Add New Todo
     </a>
