@@ -36,6 +36,9 @@ class TodoDetailView(DetailView):
     template_name = 'todo/detail.html'
     context_object_name = 'todo'
 
+    def get_object(self, queryset=None):
+        return get_object_or_404(Todo, slug=self.kwargs.get('slug'))
+
 class CreateTodoView(CreateView):
     model = Todo
     form_class = TodoForm
